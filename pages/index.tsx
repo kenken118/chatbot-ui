@@ -187,9 +187,19 @@ const Home: React.FC<HomeProps> = ({
           }
           const { value, done: doneReading } = await reader.read();
           done = doneReading;
-          const chunkValue = decoder.decode(value);
 
-          text += chunkValue;
+          if (done) {
+            const finalChunk = decoder.decode(value, { stream: true});
+            try {
+              const parsed = JSON.parse(finalChunk);
+            } catch (e) {
+              console.log('Error parsing final chunk:', e);
+            }
+          }
+
+          if (value) {
+            const chunkValue = decoder.decode(value, { stream: true});
+            text += chunkValue;
 
           if (isFirst) {
             isFirst = false;
@@ -224,6 +234,7 @@ const Home: React.FC<HomeProps> = ({
             };
 
             setSelectedConversation(updatedConversation);
+          }
           }
         }
 
